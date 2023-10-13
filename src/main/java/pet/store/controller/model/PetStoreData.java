@@ -1,3 +1,15 @@
+
+// Class that represents a pet store, customers and employees. 
+// The PetStore Data class has a constructor that take a PetStore Object as a parameter. The constuctor copies the values of the PetStore objnect to the corresponding fiels of the PetStoreData Object. 
+// The Constructor also creates PetStoreCustomer and PetStoreEmployee objects for each of the customer and employees of the pet store respectvly. 
+// Class is used to Manage pet store data in a database. 
+// to exchange pet store data between two different applications. 
+
+// No Recurvise Entitiy that cause jackson to blow up. 
+// 
+
+
+
 package pet.store.controller.model;
 
 import java.util.HashSet;

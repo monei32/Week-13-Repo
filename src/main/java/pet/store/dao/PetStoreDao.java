@@ -1,3 +1,9 @@
+
+// DA) data access object interacts with the database. 
+
+
+
+
 package pet.store.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;

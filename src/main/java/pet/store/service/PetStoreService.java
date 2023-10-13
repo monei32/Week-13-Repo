@@ -1,3 +1,7 @@
+
+// Takes data from the controller that handles the bussinnes layer and then passes the data to the DAO object. 
+
+
 package pet.store.service;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,7 +31,7 @@ public class PetStoreService {
 
 		// Next copy the fields from the data object being passed in
 		// to the dao object
-		copyPetStoreData(petStoreData, petStore);
+		copyFromDtoToDao(petStoreData, petStore);
 
 		// Save the updated petStore fields
 		PetStore saved = petStoreDao.save(petStore);
@@ -38,34 +42,34 @@ public class PetStoreService {
 
 		// Copy the values returned from the save operation into a new
 		// object that has the updated information
-		copyPetStoreFields(saved, updated);
+		copyFromDaoToDto(saved, updated);
 
 		// Return the updated information
 		return updated;
 	}
 
 	// Copies properties from data into store updating the rhs object
-	private void copyPetStoreData(PetStoreData petStoreData, PetStore petStore) {
-		petStore.setPetStoreName(petStoreData.getPetStoreName());
-		petStore.setPetStoreId(petStoreData.getPetStoreId());
-		petStore.setPetStoreAddress(petStoreData.getPetStoreAddress());
-		petStore.setPetStoreCity(petStoreData.getPetStoreCity());
-		petStore.setPetStoreState(petStoreData.getPetStoreState());
-		petStore.setPetStoreZip(petStoreData.getPetStoreZip());
-		petStore.setPetStorePhone(petStoreData.getPetStorePhone());
+	private void copyFromDtoToDao(PetStoreData pDto, PetStore pDao) {
+		pDao.setPetStoreName(pDto.getPetStoreName());
+		pDao.setPetStoreId(pDto.getPetStoreId());
+		pDao.setPetStoreAddress(pDto.getPetStoreAddress());
+		pDao.setPetStoreCity(pDto.getPetStoreCity());
+		pDao.setPetStoreState(pDto.getPetStoreState());
+		pDao.setPetStoreZip(pDto.getPetStoreZip());
+		pDao.setPetStorePhone(pDto.getPetStorePhone());
 
 	}
 
 	// Copies properties from store into data updating the rhs object
-	private void copyPetStoreFields(PetStore petStore, PetStoreData petStoreData) {
+	private void copyFromDaoToDto(PetStore pDao, PetStoreData pDto) {
 		// copy field from store into the data object the other way...
-		petStoreData.setPetStoreName(petStore.getPetStoreName());
-		petStoreData.setPetStoreId(petStore.getPetStoreId());
-		petStoreData.setPetStoreAddress(petStore.getPetStoreAddress());
-		petStoreData.setPetStoreCity(petStore.getPetStoreCity());
-		petStoreData.setPetStoreState(petStore.getPetStoreState());
-		petStoreData.setPetStoreZip(petStore.getPetStoreZip());
-		petStoreData.setPetStorePhone(petStore.getPetStorePhone());
+		pDto.setPetStoreName(pDao.getPetStoreName());
+		pDto.setPetStoreId(pDao.getPetStoreId());
+		pDto.setPetStoreAddress(pDao.getPetStoreAddress());
+		pDto.setPetStoreCity(pDao.getPetStoreCity());
+		pDto.setPetStoreState(pDao.getPetStoreState());
+		pDto.setPetStoreZip(pDao.getPetStoreZip());
+		pDto.setPetStorePhone(pDao.getPetStorePhone());
 
 	}
 

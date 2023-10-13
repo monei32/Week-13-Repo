@@ -1,3 +1,17 @@
+
+// Handles HTTP Requests and passes off data to the service layer. 
+
+//HTTP is just test that is sent over the internet. HTTP consists of a request and a response. Request Line Request Header Request Body =Json 
+
+//Request Line Consists of VERB + UTI + HTTP Verion ex GET /pet_store HTTP/2.0      POST /pet_park HTTP/2.0   Common HTTP VERBS (CRUD)" POST CREATE GET READ PUT UPDATE DELETE DELETE
+
+// Header Describe the request and allowed Response format(s) 
+
+// Request Body used for POST CREATE and PUT UPDATe 
+
+// HTTP Response has a HTTP Version +status code + reason 200 ok 404 not found 409 no conflict
+ 
+
 package pet.store.controller;
 import java.util.List;
 
@@ -26,13 +40,16 @@ public class PetStoreController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public PetStoreData insertPetStore(@RequestBody PetStoreData petStoreData) {
 		log.info("Creating PetStore {}", petStoreData);
-		return petStoreService.savePetStore(petStoreData);
+		var updated = petStoreService.savePetStore(petStoreData);
+		return updated;
 	}
     
+	
 	@GetMapping 
 	public List<PetStoreData> retrieveAllPetStores(){
 		log.info("Retrieve all petstores called"); 
-		return petStoreService.retrieveAllPetStores(); 
+		var found = petStoreService.retrieveAllPetStores(); 
+		return found;
 	}
 	
 	
