@@ -87,16 +87,35 @@ public class PetStoreService {
 
 	}
 
+	
+	// First list tells the DAO to return the Enity Object. 
+	// Second List <PetStoreData> turns the list of enity objects into a list of petStoreData
 	@Transactional(readOnly = true)
 	public List<PetStoreData> retrieveAllPetStores() {
 		List<PetStore> petStores = petStoreDao.findAll();
 		List<PetStoreData> response = new LinkedList<>(); 
+		
+		
+		// turns the list of petStore Enity's into PetStoreData
 		
 		for(PetStore petstore : petStores) {
 			response.add(new PetStoreData(petstore)); 
 		}
 		
 		return response;
+	}
+    
+	@Transactional(readOnly = true)
+	public PetStoreData retrievePetStoreByID(Long petStoreId) {
+		PetStore petStore = findOrCreatePetStore(petStoreId);
+		return new PetStoreData(petStore);
+	}
+    
+	@Transactional(readOnly = false)
+	public void deletePetStoreById(Long petStoreId) {
+		PetStore petStore = findOrCreatePetStore(petStoreId); 
+		petStoreDao.delete(petStore);
+		
 	}
 
 }

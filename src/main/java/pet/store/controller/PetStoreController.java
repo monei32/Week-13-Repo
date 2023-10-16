@@ -14,9 +14,11 @@
 
 package pet.store.controller;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,12 +47,21 @@ public class PetStoreController {
 	}
     
 	
-	@GetMapping 
+	@GetMapping("/pet_store")
 	public List<PetStoreData> retrieveAllPetStores(){
 		log.info("Retrieve all petstores called"); 
 		var found = petStoreService.retrieveAllPetStores(); 
 		return found;
 	}
+	 
+	@GetMapping("/pet_store/{petStoreId}")
+	public PetStoreData retrievePetStoreById(@PathVariable Long petStoreId) {
+		// the open and close curly braces indicate a replaceable parameter and the paramater is the petstrore id
+		log.info("Retrieving PetSoters with Id ={}", petStoreId);
+		return petStoreService.retrievePetStoreByID(petStoreId);
+	}
+	
+	
 	
 	
 	// inside the put mapping is the resource inside the source variable will match the variable
@@ -65,5 +76,20 @@ public class PetStoreController {
 	    // Call the savePet Store Method
 	     return petStoreService.savePetStore(petStoreData); 
 	}	
+	 @DeleteMapping("/pet_store/")
+	public void deletePetStores() {
+		log.info("Attempting to delete all Pet Stores");
+		throw new UnsupportedOperationException("Deleting all Pet Stores is not allowend!!");
+	}
+	
+	@DeleteMapping("/pet_store/{petStoreId}")
+	public Map <String, String> deletePetStoreById(@PathVariable Long petStoreId) {
+		   
+		log.info("Deleting pet store with ID = {}", petStoreId ); 
+		
+		petStoreService.deletePetStoreById(petStoreId); 
+		
+		return Map.of("message", "Deletion of pet store with ID=" + petStoreId); 
+	}
 	
 }
