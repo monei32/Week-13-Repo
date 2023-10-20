@@ -7,87 +7,83 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lombok.extern.slf4j.Slf4j;
 import pet.store.controller.model.PetStoreData;
+import pet.store.controller.model.PetStoreData.PetStoreCustomer;
+import pet.store.controller.model.PetStoreData.PetStoreEmployee;
+import pet.store.dao.CustomerDao;
+import pet.store.dao.EmployeeDao;
 import pet.store.dao.PetStoreDao;
+import pet.store.entity.Customer;
+import pet.store.entity.Employee;
 import pet.store.entity.PetStore;
 
+
+@Slf4j
 @Service
 public class PetStoreService {
 
 	@Autowired
 	private PetStoreDao petStoreDao;
+	
+	@Autowired 
+	private EmployeeDao employeeDao; 
+	
+	@Autowired
+	private CustomerDao customerDao; 
+	
+
     
 	@Transactional(readOnly = false)
 	public PetStoreData savePetStore(PetStoreData petStoreData) {
-
-		// Find or create a new object based on the ID.
-		Long petStoreId = petStoreData.getPetStoreId();
-
-		// This will either be an empty object or the one that exists in the database
-		PetStore petStore = findOrCreatePetStore(petStoreId);
-
-		// Next copy the fields from the data object being passed in
-		// to the dao object
-		copyFromDtoToDao(petStoreData, petStore);
-
-		// Save the updated petStore fields
-		PetStore saved = petStoreDao.save(petStore);
-
-		// Create a new updated object that will have the NEW values
-		// set into it to return to the user.
-		PetStoreData updated = new PetStoreData();
-
-		// Copy the values returned from the save operation into a new
-		// object that has the updated information
-		copyFromDaoToDto(saved, updated);
-
-		// Return the updated information
-		return updated;
-	}
-
-	// Copies properties from data into store updating the rhs object
-	private void copyFromDtoToDao(PetStoreData pDto, PetStore pDao) {
-		pDao.setPetStoreName(pDto.getPetStoreName());
-		pDao.setPetStoreId(pDto.getPetStoreId());
-		pDao.setPetStoreAddress(pDto.getPetStoreAddress());
-		pDao.setPetStoreCity(pDto.getPetStoreCity());
-		pDao.setPetStoreState(pDto.getPetStoreState());
-		pDao.setPetStoreZip(pDto.getPetStoreZip());
-		pDao.setPetStorePhone(pDto.getPetStorePhone());
-
-	}
-
-	// Copies properties from store into data updating the rhs object
-	private void copyFromDaoToDto(PetStore pDao, PetStoreData pDto) {
-		// copy field from store into the data object the other way...
-		pDto.setPetStoreName(pDao.getPetStoreName());
-		pDto.setPetStoreId(pDao.getPetStoreId());
-		pDto.setPetStoreAddress(pDao.getPetStoreAddress());
-		pDto.setPetStoreCity(pDao.getPetStoreCity());
-		pDto.setPetStoreState(pDao.getPetStoreState());
-		pDto.setPetStoreZip(pDao.getPetStoreZip());
-		pDto.setPetStorePhone(pDao.getPetStorePhone());
-
-	}
-
-	private PetStore findOrCreatePetStore(Long petStoreId) {
-		PetStore petStore;
-
-		if (Objects.isNull(petStoreId)) {
-			petStore = new PetStore();
-		} else {
-			petStore = petStoreDao.findById(petStoreId)
-					.orElseThrow(() -> new NoSuchElementException("PetStore with Id =" + petStoreId + "was not found"));
-		}
-
-		return petStore;
-
+		Long petStoreId = petStoreData.getPetStoreId(); 
+		PetStore petStore = findOrCreatePetStore(petStoreId); 
+		
+		copyPetStoreFields(petStore,petStoreData); 
+		return new PetStoreData(petStoreDao.save(petStore)); 
 	}
 
 	
+	
+	private void copyPetStoreFields(PetStore petStore, PetStoreData petStoreData) {
+		petStore.setPetStoreAddress(petStoreData.getPetStoreAddress());
+		petStore.setPetStoreCity(petStoreData.getPetStoreCity());
+		petStore.setPetStoreId(petStoreData.getPetStoreId());
+		petStore.setPetStoreName(petStoreData.getPetStoreName());
+		petStore.setPetStorePhone(petStoreData.getPetStorePhone());
+		petStore.setPetStoreState(petStoreData.getPetStoreState());
+		petStore.setPetStoreZip(petStoreData.getPetStoreZip());
+		
+	}
+
+
+
+	private PetStore findOrCreatePetStore(Long petStoreId) {
+		if(Objects.isNull(petStoreId)) {
+			return new PetStore(); 
+		} 
+		else {
+		return findPetStoreById(petStoreId); 
+		}
+	}
+
+
+
+	private PetStore findPetStoreById(Long petStoreId) {
+		return petStoreDao.findById(petStoreId).orElseThrow(() -> new NoSuchElementException("Pet Store with ID=" + petStoreId + "was not found")); 
+		
+		
+	}
+
+
+
 	// First list tells the DAO to return the Enity Object. 
 	// Second List <PetStoreData> turns the list of enity objects into a list of petStoreData
 	@Transactional(readOnly = true)
@@ -117,5 +113,95 @@ public class PetStoreService {
 		petStoreDao.delete(petStore);
 		
 	}
+	
+    @Transactional(readOnly= false)
+	public PetStoreEmployee saveEmployee(Long petStoreId, PetStoreEmployee petStoreEmployee) {
+    	PetStore petStore = findPetStoreById(petStoreId); 
+    	
+    	Long employeeId = petStoreEmployee.getEmployeeId();
+    	Employee employee = findOrCreateEmployee(employeeId, petStoreId); 
+    	
+    	setEmployeeFields(employee, petStoreEmployee); 
+    	employee.setPetStore(petStore); 
+    	
+    	petStore.getEmployees().add(employee); 
+    	
+    	return new PetStoreEmployee(employeeDao.save(employee)); 
+    	 
+		}
 
+    
+    
+    
+	private void setEmployeeFields(Employee employee, PetStoreEmployee petStoreEmployee) {
+		employee.setEmployeeId(petStoreEmployee.getEmployeeId()); 
+		employee.setEmployeeFirstName(petStoreEmployee.getEmployeeFirstName());
+		employee.setEmployeeLastName(petStoreEmployee.getEmployeeLastName());
+		employee.setEmployeeJobTitle(petStoreEmployee.getEmployeeJobTitle());
+		employee.setEmployeePhone(petStoreEmployee.getEmployeePhone());
+		
+	}
+
+	private Employee findOrCreateEmployee(Long employeeId, Long petStoreId) {
+		Employee employee;
+
+	//	PetStore petStore = findOrCreatePetStore(petStoreId); 
+		
+		// No employee found then create a new employee
+		// set the pet store as its parent
+		if (Objects.isNull(employeeId)) {
+			employee = new Employee();
+			log.info("Create Employee with id {}" + employeeId); 
+		} 
+		// Otherwise load the employee and its pet store linkage.
+		else {
+			employee = employeeDao.findById(employeeId)
+					.orElseThrow(() -> new NoSuchElementException("Employee with Id =" + employeeId + "was not found"));
+		}
+
+		return employee;
+	}
+      @Transactional(readOnly = false)
+	public PetStoreCustomer saveCustomer(Long petStoreId, PetStoreCustomer petStoreCustomer) {
+		PetStore petStore = findPetStoreById(petStoreId); 
+		
+		Long customerId = petStoreCustomer.getCustomerId(); 
+		Customer customer = findOrCreateCustomer(customerId, petStoreId); 
+		setCustomerFields(customer, petStoreCustomer); 
+		
+		return new PetStoreCustomer(customerDao.save(customer));
+	}
+
+
+
+	private void setCustomerFields(Customer customer, PetStoreCustomer petStoreCustomer) {
+		    customer.setCustomerFirstName(petStoreCustomer.getCustomerFirstName());
+		    customer.setCustomerLastName(petStoreCustomer.getCustomerLastName());
+		    customer.setCustomerEmail(petStoreCustomer.getCustomerEmail());
+		    customer.setCustomerId(petStoreCustomer.getCustomerId());
+		    
+		
+	}
+
+
+
+	private Customer findOrCreateCustomer(Long customerId, Long petStoreId) {
+		Customer customer; 
+
+		//	PetStore petStore = findOrCreatePetStore(petStoreId); 
+			
+			// No employee found then create a new employee
+			// set the pet store as its parent
+			if (Objects.isNull(customerId)) {
+				customer = new Customer(); 
+				log.info("Create Customer with ID {}" + customerId);
+			} 
+			// Otherwise load the employee and its pet store linkage.
+			else {
+				customer = customerDao.findById(customerId).orElseThrow(() -> new NoSuchElementException("Customer with Id =" + customerId + "was not found")); 
+		
+	}
+			return customer;
+	}
+	
 }
